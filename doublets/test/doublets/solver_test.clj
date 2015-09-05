@@ -2,6 +2,15 @@
   (:require [clojure.test :refer :all]
             [doublets.solver :refer :all]))
 
+(deftest words-converted-to-letter-tree
+  (testing "collection of words converted to tree of letters of form [root-letter [words-ending-in-root-letter] [child-letter-trees-if-exist]")
+    (is (= [ nil []
+            [\b [] [\a [] [\t ["bat"]]]]
+            [\c [] [\a []
+                    [\m [] [\e ["came"]]]
+                    [\r ["car"]]]]
+            ] (convert-words-to-letter-tree ["bat" "car" "came"]))))
+
 (deftest solver-test
   (testing "with word links found"
     (is (= ["head" "heal" "teal" "tell" "tall" "tail"]
