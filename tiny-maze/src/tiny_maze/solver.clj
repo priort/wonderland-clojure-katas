@@ -37,18 +37,21 @@
   (-> (get-1D-ids-for-adjacent-cells id-2D maze)
        (filter-out-closed-cells maze)))
 
+(defn get-parent-connection-pair [[parent _] connection-pairs]
+  (get connection-pairs parent))
 
-(defn trace-connection-pairs-from-exit [parent-child-pairs-1D-ids]
-  (loop [curr-connection-pair (last parent-child-pairs-1D-ids) connection-pairs-path []]
+(defn trace-connection-pairs-from-exit [connection-pairs]
+  (loop [curr-connection-pair (get connection-pairs (apply max (keys connection-pairs)))
+         connection-pairs-path []]
     (if (nil? curr-connection-pair)
       connection-pairs-path
-      (recur (first (filter #(= (first curr-connection-pair) (last %)) parent-child-pairs-1D-ids))
+      (recur (get-parent-connection-pair curr-connection-pair connection-pairs)
              (conj connection-pairs-path curr-connection-pair)))))
 
 (defn get-child-from-connection-pair [[_ child]] child)
 
 (defn filter-out-adjacent-cells-not-already-connected [maze connection-pairs cell-2D-id]
-  (filter (set (map get-child-from-connection-pair connection-pairs))
+  (filter (set (map get-child-from-connection-pair (vals connection-pairs)))
           (find-adjacent-open-cells-1D-ids cell-2D-id maze)))
 
 (defn candidate-parents [maze connection-pairs current-1D-id]
@@ -58,14 +61,14 @@
 (defn union-open-cell-to-lowest-id-parent [maze connection-pairs current-1D-id]
   (if-let [candidate-parents
            (seq (candidate-parents maze connection-pairs current-1D-id))]
-    (conj connection-pairs [(apply min candidate-parents) current-1D-id])
-    (conj connection-pairs [:no-parent current-1D-id])))
+    (assoc connection-pairs current-1D-id [(apply min candidate-parents) current-1D-id])
+    (assoc  connection-pairs current-1D-id [:no-parent current-1D-id])))
 
 
 (defn union-open-cells-with-lowest-id-parents [maze]
   (reduce
     #(union-open-cell-to-lowest-id-parent maze %1 %2)
-    []
+    {}
     (get-1D-ids-for-open-cells maze)))
 
 (defn find-path-through-maze-in-2D-ids [maze]
