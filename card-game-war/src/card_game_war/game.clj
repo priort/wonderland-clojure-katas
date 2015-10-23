@@ -1,11 +1,12 @@
 (ns card-game-war.game)
 
-(def suits [:spade :club :diamond :heart])
 (def suit-value-by-name {:spade 1
                          :club 2
                          :diamond 3
                          :heart 4})
-(def ranks [2 3 4 5 6 7 8 9 10 :jack :queen :king :ace])
+
+(def suits (keys suit-value-by-name))
+
 (def rank-value-by-name {2 2
                          3 3
                          4 4
@@ -19,6 +20,9 @@
                          :queen 12
                          :king 13
                          :ace 14})
+
+(def ranks (keys rank-value-by-name))
+
 (def cards
   (for [suit suits
         rank ranks]

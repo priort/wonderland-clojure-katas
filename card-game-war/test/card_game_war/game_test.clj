@@ -63,4 +63,11 @@
   (testing "if the ranks are equal, hearts beat diamonds"))
 
 (deftest test-play-game
-  (testing "the player loses when they run out of cards"))
+  (testing "the player loses when they run out of cards"
+    (let [divided-shuffled-cards (partition 2 (shuffle cards))
+          player1-cards (first divided-shuffled-cards)
+          player2-cards (last divided-shuffled-cards)
+          game-result (play-game player1-cards player2-cards)]
+      (is (and (seq (filter (fn [player-cards] (empty? player-cards)) game-result))
+               (seq (filter (fn [player-cards]
+                              (= (set cards) (set player-cards))) game-result)))))))
