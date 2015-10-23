@@ -23,16 +23,11 @@
 
 (def ranks (keys rank-value-by-name))
 
-(def cards
-  (for [suit suits
-        rank ranks]
-    [suit rank]))
-
 (defn- play-round-higher-rank-wins [[_ rank-1 :as player1-card]
                   [_ rank-2 :as player2-card]]
   (cond
     (> (get rank-value-by-name rank-2) (get rank-value-by-name rank-1))
-    [[] [player1-card player2-card]]
+    [[] [player2-card player1-card]]
     (< (get rank-value-by-name rank-2) (get rank-value-by-name rank-1))
     [[player1-card player2-card] []]))
 
@@ -40,15 +35,21 @@
                                     [suit-2 _ :as player2-card]]
   (cond
     (> (get suit-value-by-name suit-2) (get suit-value-by-name suit-1))
-    [[] [player1-card player2-card]]
+    [[] [player2-card player1-card]]
     (< (get suit-value-by-name suit-2) (get suit-value-by-name suit-1))
     [[player1-card player2-card] []]))
 
 (defn play-round [player1-card player2-card]
-
-  (println [player1-card player2-card])
   (if-let [result (play-round-higher-rank-wins player1-card player2-card)]
     result (play-round-higher-suit-wins player1-card player2-card)))
 
-(defn play-game [player1-cards player2-cards])
+(defn play-game [player1-cards player2-cards]
+  (loop [cards1-queue player1-cards
+         cards2-queue player2-cards]
+    (if (and (seq cards1-queue) (seq cards2-queue))
+      (let [[round-result-cards1 round-result-cards2]
+            (play-round (first cards1-queue) (first cards2-queue))]
+        (recur (vec (concat (rest cards1-queue) round-result-cards1))
+               (vec (concat (rest cards2-queue) round-result-cards2))))
+      [cards1-queue cards2-queue])))
 
